@@ -2,16 +2,22 @@
 #
 # create-mod.sh - Helper script to create a new Minsky mod
 #
-# Usage: ./create-mod.sh <mod-name>
-# Example: ./create-mod.sh analytics
+# Usage: ./mods/tools/create-mod.sh <mod-name>
+#    Or: ./create-mod.sh <mod-name> (from mods/tools/)
+# Example: ./mods/tools/create-mod.sh analytics
 
 set -e
+
+# Ensure we're in the repo root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$REPO_ROOT"
 
 MOD_NAME=$1
 
 if [ -z "$MOD_NAME" ]; then
-  echo "Usage: ./create-mod.sh <mod-name>"
-  echo "Example: ./create-mod.sh analytics"
+  echo "Usage: ./mods/tools/create-mod.sh <mod-name>"
+  echo "Example: ./mods/tools/create-mod.sh analytics"
   exit 1
 fi
 
