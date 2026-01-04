@@ -1,3 +1,4 @@
+
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { SimulationRoutingModule } from './simulation-routing.module';
@@ -7,4 +8,4 @@ import { SimulationParametersComponent } from './simulation/simulation-parameter
 @NgModule({
     imports: [CommonModule, SimulationRoutingModule, SimulationParametersComponent],
 })
-export class SimulationModule {}
+export class SimulationModule { }

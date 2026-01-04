@@ -35,8 +35,11 @@
             "@minsky/ui-components": [
                 "libs/ui-components/src/index.ts"
             ],
-            "@minsky/*": [
-                "libs/mods/*/src/index.ts"
+            "@minsky/mod-scenario-loader": [
+                "libs/mods/mod-scenario-loader/src/index.ts"
+            ],
+            "@minsky/mod-csv-export": [
+                "libs/mods/mod-csv-export/src/index.ts"
             ]
         }
     },

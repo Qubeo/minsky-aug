@@ -1,13 +1,13 @@
-
+import { ScenarioLoaderComponent } from '@minsky/mod-scenario-loader';
+import { CsvExportComponent } from '@minsky/mod-csv-export';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SimulationParametersComponent } from './simulation/simulation-parameters.component';
 
-import { ModRegistry } from '@minsky/shared';
-
 const routes: Routes = [
     { path: 'simulation-parameters', component: SimulationParametersComponent },
-    ...ModRegistry.getRoutes(),
+    { path: 'load-scenario', component: ScenarioLoaderComponent },
+    { path: 'export-csv', component: CsvExportComponent },
 ];
 
 @NgModule({

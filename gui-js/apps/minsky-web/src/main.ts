@@ -1,3 +1,4 @@
+import '@angular/compiler';
 import { enableProdMode, importProvidersFrom } from '@angular/core';
 
 import { HttpLoaderFactory } from './app/app.module';
@@ -17,7 +18,7 @@ if (AppConfig.production) {
 
 
 bootstrapApplication(AppComponent, {
-    providers: [
+  providers: [
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
     importProvidersFrom(TranslateModule.forRoot({
@@ -27,8 +28,8 @@ bootstrapApplication(AppComponent, {
         deps: [HttpClient],
       },
     }),
-    HttpClientModule,
-    AppRoutingModule)
-]
+      HttpClientModule,
+      AppRoutingModule)
+  ]
 })
   .catch((err) => console.error(err));

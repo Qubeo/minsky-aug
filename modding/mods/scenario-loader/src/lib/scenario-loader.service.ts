@@ -10,7 +10,7 @@ export class ScenarioLoaderService {
     constructor(private electronService: ElectronService) { }
 
     async readCsvFile(filePath: string): Promise<string> {
-        return await this.electronService.readFileText(filePath);
+        return await this.electronService.invoke('read-file-text', filePath);
     }
 
     parseScenarioData(csvText: string): ScenarioData {

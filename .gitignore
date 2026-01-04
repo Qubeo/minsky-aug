@@ -34,6 +34,7 @@ gui-tk/library/tcl
 gui-tk/library/tk
 RESTService/minsky-RESTService
 RESTService/minsky-httpd
+RESTService/typescriptAPI
 node_modules/*
 gui-js/node_modules/*
 gui-js/documentation/*
@@ -60,3 +61,14 @@ gui-js/build/
 
 # Installed Mods
 gui-js/libs/mods/
+
+# Binaries
+*.so
+*.node
+*.dll
+*.dylib
+*.a
+*.lib
+*.obj
+*.o
+

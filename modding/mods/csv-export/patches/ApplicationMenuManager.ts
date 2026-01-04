@@ -17,7 +17,6 @@ import { StoreManager } from './StoreManager';
 import { WindowManager } from './WindowManager';
 import { BookmarkManager } from './BookmarkManager';
 import { RecordingManager } from './RecordingManager';
-import { ModRegistry } from '@minsky/shared';
 
 //TODO:: Remove hardcoding of popup dimensions
 
@@ -34,59 +33,35 @@ export class ApplicationMenuManager {
       scope.getHelpMenu(),
     ]);
 
-    // [Modding] Inject mod menus
-    const modMenus = ModRegistry.getMenuContributions();
-    for (const item of modMenus) {
-      // Only supporting simulation menu injection for now as per plan
-      if (item.targetMenu === 'simulation') {
-        const targetMenu = menu.items.find(i => i.label === 'Simulation');
-        if (targetMenu && targetMenu.submenu) {
-          targetMenu.submenu.append(new MenuItem({
-            label: item.label,
-            click: () => {
-              if (item.window) {
-                WindowManager.createPopupWindowWithRouting({
-                  width: item.window.width,
-                  height: item.window.height,
-                  title: item.window.title || item.label,
-                  url: `#/headless/menu/${item.route}`,
-                });
-              }
-            }
-          }));
-        }
-      }
-    }
-
     if (Functions.isMacOS())
       menu.insert(0, new MenuItem({
         label: "Minsky",
         submenu: [
-          {
-            label: 'About Minsky',
-            click() {
-              WindowManager.createPopupWindowWithRouting({
-                width: 420,
-                height: 600,
-                title: '',
-                url: `#/headless/menu/file/about`,
-                modal: false,
-              });
-            },
+        {
+          label: 'About Minsky',
+          click() {
+            WindowManager.createPopupWindowWithRouting({
+              width: 420,
+              height: 600,
+              title: '',
+              url: `#/headless/menu/file/about`,
+              modal: false,
+            });
           },
-          { type: 'separator' },
-          {
-            label: 'Preferences',
-            click() {
-              WindowManager.createPopupWindowWithRouting({
-                width: 500,
-                useContentSize: true,
-                height: 550,
-                title: 'Preferences',
-                url: `#/headless/menu/options/preferences`,
-              });
-            },
+        },
+        { type: 'separator' },
+        {
+          label: 'Preferences',
+          click() {
+            WindowManager.createPopupWindowWithRouting({
+              width: 500,
+              useContentSize: true,
+              height: 550,
+              title: 'Preferences',
+              url: `#/headless/menu/options/preferences`,
+            });
           },
+        },
           { role: 'services' },
           { type: 'separator' },
           { role: 'hide' },
@@ -95,7 +70,7 @@ export class ApplicationMenuManager {
           { type: 'separator' },
           { role: 'quit' }
         ]
-      }));
+    }));
 
     Menu.setApplicationMenu(menu);
     return menu;
@@ -103,10 +78,10 @@ export class ApplicationMenuManager {
 
   private static async getFileMenu(): Promise<MenuItemConstructorOptions> {
     const scope = this;
-    const ravelAvailable = await minsky.ravelAvailable();
-    let ravelUpgradeLabel = 'Upgrade Ravel';
+    const ravelAvailable=await minsky.ravelAvailable();
+    let ravelUpgradeLabel='Upgrade Ravel';
     if (!ravelAvailable)
-      ravelUpgradeLabel = 'Install Ravel';
+      ravelUpgradeLabel='Install Ravel';
     return {
       label: 'File',
       submenu: [
@@ -124,26 +99,26 @@ export class ApplicationMenuManager {
         },
         {
           label: 'Upgrade',
-          click() { CommandsManager.upgrade(); },
+          click() {CommandsManager.upgrade();},
         },
         {
           label: ravelUpgradeLabel,
           submenu: [
             {
               label: 'Latest Ravel',
-              click() { CommandsManager.upgrade(InstallCase.latestRavel); },
+              click() {CommandsManager.upgrade(InstallCase.latestRavel);},
             },
             {
               label: 'Previous Ravel',
               enabled: ravelAvailable,
-              click() { CommandsManager.upgrade(InstallCase.previousRavel) },
+              click() {CommandsManager.upgrade(InstallCase.previousRavel)},
             },
           ],
         },
         {
           label: 'Logout from Patreon',
           click() {
-            let window = WindowManager.createWindow({
+            let window=WindowManager.createWindow({
               width: 420,
               height: 500,
               title: '',
@@ -156,8 +131,8 @@ export class ApplicationMenuManager {
           label: 'New System',
           accelerator: 'CmdOrCtrl + Shift + N',
           async click() {
-            await CommandsManager.createNewSystem();
-            BookmarkManager.updateBookmarkList();
+              await CommandsManager.createNewSystem();
+              BookmarkManager.updateBookmarkList();
           },
         },
         {
@@ -170,7 +145,7 @@ export class ApplicationMenuManager {
                 properties: ['openFile'],
                 defaultPath: ':models',
                 filters: [
-                  { name: 'Minsky/Ravel', extensions: ['rvl', 'mky'] },
+                  { name: 'Minsky/Ravel', extensions: ['rvl','mky'] },
                   { name: '*.xml', extensions: ['xml'] },
                   { name: '*.*', extensions: ['*'] },
                 ],
@@ -218,14 +193,14 @@ export class ApplicationMenuManager {
           },
         },
         {
-          label: 'Save',
-          accelerator: 'CmdOrCtrl + S',
-          async click() { await CommandsManager.save(); }
+            label: 'Save',
+            accelerator: 'CmdOrCtrl + S',
+            async click() {await CommandsManager.save();}
         },
         {
-          label: 'Save As',
-          accelerator: 'CmdOrCtrl + Shift + S',
-          async click() { await CommandsManager.saveAs(); }
+            label: 'Save As',
+            accelerator: 'CmdOrCtrl + Shift + S',
+            async click() {await CommandsManager.saveAs();}
         },
         {
           label: 'Import Data',
@@ -234,7 +209,7 @@ export class ApplicationMenuManager {
               label: 'to parameter',
               async click() {
                 minsky.canvas.addVariable(importCSVvariableName, 'parameter');
-                let v = new VariableBase(minsky.canvas.itemFocus);
+                let v=new VariableBase(minsky.canvas.itemFocus);
                 CommandsManager.importCSV(minsky.variableValues.elem(await v.valueId()), true);
               }
             },
@@ -275,7 +250,7 @@ export class ApplicationMenuManager {
             const res = await minsky.dimensionalAnalysis();
 
             // empty object is returned if no error
-            if (typeof res == "object") {
+            if (typeof res=="object") {
               dialog.showMessageBoxSync(WindowManager.getMainWindow(), {
                 type: 'info',
                 title: 'Dimensional Analysis',
@@ -291,7 +266,8 @@ export class ApplicationMenuManager {
           id: 'logging-menu-item', // allows setting and clearing checkmark
           type: 'checkbox',
           async click() {
-            if (!await minsky.loggingEnabled()) {
+            if (!await minsky.loggingEnabled())
+            {
               WindowManager.createPopupWindowWithRouting({
                 width: 250,
                 height: 600,
@@ -299,19 +275,20 @@ export class ApplicationMenuManager {
                 url: `#/headless/menu/file/log-simulation`,
               });
             }
-            else {
+            else
+            {
               minsky.closeLogFile();
-              Menu.getApplicationMenu().getMenuItemById('logging-menu-item').checked = false;
+              Menu.getApplicationMenu().getMenuItemById('logging-menu-item').checked=false;
             }
           },
         },
         {
           label: 'Recording',
-          click() { RecordingManager.handleRecord(); },
+          click() {RecordingManager.handleRecord();},
         },
         {
           label: 'Replay recording',
-          click() { RecordingManager.handleRecordingReplay(); },
+          click() {RecordingManager.handleRecordingReplay();},
         },
         {
           label: 'Quit',
@@ -328,24 +305,24 @@ export class ApplicationMenuManager {
         {
           label: 'Redraw',
           async click() {
-            const {
-              leftOffset,
-              canvasWidth,
-              canvasHeight,
-              activeWindows,
-              electronTopOffset,
-              scaleFactor,
-            } = WindowManager;
+                const {
+                  leftOffset,
+                  canvasWidth,
+                  canvasHeight,
+                  activeWindows,
+                  electronTopOffset,
+                  scaleFactor,
+                } = WindowManager;
 
             minsky.canvas.renderFrame
-              ({
-                parentWindowId: activeWindows.get(1).systemWindowId.toString(),
-                offsetLeft: leftOffset,
-                offsetTop: electronTopOffset,
-                childWidth: canvasWidth,
-                childHeight: canvasHeight,
-                scaleFactor: scaleFactor
-              });
+            ({
+              parentWindowId: activeWindows.get(1).systemWindowId.toString(),
+              offsetLeft: leftOffset,
+              offsetTop: electronTopOffset,
+              childWidth: canvasWidth,
+              childHeight: canvasHeight,
+              scaleFactor: scaleFactor
+            });
           },
         },
       ],
@@ -359,12 +336,12 @@ export class ApplicationMenuManager {
         {
           label: 'Undo',
           accelerator: 'CmdOrCtrl + Z',
-          async click() { CommandsManager.undo(1); },
+          async click() {CommandsManager.undo(1);},
         },
         {
           label: 'Redo',
           accelerator: 'CmdOrCtrl + Y',
-          async click() { CommandsManager.undo(-1); },
+          async click() {CommandsManager.undo(-1);},
         },
         {
           label: 'Cut',
@@ -389,7 +366,7 @@ export class ApplicationMenuManager {
         },
         {
           label: 'Group selection',
-          async click() { minsky.canvas.groupSelection(); },
+          async click() {minsky.canvas.groupSelection();},
         },
         {
           label: 'Dimensions',
@@ -405,7 +382,7 @@ export class ApplicationMenuManager {
         },
         {
           label: 'Remove Units',
-          async click() { minsky.deleteAllUnits(); },
+          async click() {minsky.deleteAllUnits();},
         },
         {
           label: 'Auto Layout',
@@ -416,14 +393,14 @@ export class ApplicationMenuManager {
         },
         {
           label: 'Random Layout',
-          async click() { minsky.randomLayout(); }
+          async click() {minsky.randomLayout();}
         },
       ],
     };
   }
 
   private static getInsertMenu(): MenuItemConstructorOptions {
-    let varDialogParams = {
+    let varDialogParams={
       width: 400,
       height: 500,
       title: 'Create',
@@ -448,15 +425,15 @@ export class ApplicationMenuManager {
         },
         {
           label: 'plot',
-          async click() { minsky.canvas.addPlot(); }
+          async click() {minsky.canvas.addPlot();}
         },
         {
           label: 'sheet',
-          async click() { minsky.canvas.addSheet(); }
+          async click() {minsky.canvas.addSheet();}
         },
         {
           label: 'Godley Table',
-          async click() { minsky.canvas.addGodley(); }
+          async click() {minsky.canvas.addGodley();}
         },
         {
           label: 'Variable',
@@ -467,21 +444,21 @@ export class ApplicationMenuManager {
             {
               label: 'variable',
               click() {
-                varDialogParams.url = '#/headless/menu/insert/create-variable?type=flow';
+                varDialogParams.url='#/headless/menu/insert/create-variable?type=flow';
                 WindowManager.createPopupWindowWithRouting(varDialogParams);
               },
             },
             {
               label: 'constant',
               click() {
-                varDialogParams.url = '#/headless/menu/insert/create-variable?type=constant';
+                varDialogParams.url='#/headless/menu/insert/create-variable?type=constant';
                 WindowManager.createPopupWindowWithRouting(varDialogParams);
               },
             },
             {
               label: 'parameter',
               click() {
-                varDialogParams.url = '#/headless/menu/insert/create-variable?type=parameter';
+                varDialogParams.url='#/headless/menu/insert/create-variable?type=parameter';
                 WindowManager.createPopupWindowWithRouting(varDialogParams);
               },
             },
@@ -489,19 +466,19 @@ export class ApplicationMenuManager {
         },
         {
           label: 'time',
-          async click() { minsky.canvas.addOperation("time"); }
+          async click() {minsky.canvas.addOperation("time");}
         },
         {
           label: 'integrate',
-          async click() { minsky.canvas.addOperation("integrate"); }
+          async click() {minsky.canvas.addOperation("integrate");}
         },
         {
           label: 'differentiate',
-          async click() { minsky.canvas.addOperation("differentiate"); },
+          async click() {minsky.canvas.addOperation("differentiate");},
         },
         {
           label: 'ravel',
-          async click() { minsky.canvas.addOperation("ravel"); }
+          async click() {minsky.canvas.addOperation("ravel");}
         },
       ],
     };
@@ -532,23 +509,23 @@ export class ApplicationMenuManager {
     extension: string, label: string,
     ...args: any[]
   ) {
-    var filePath = await CommandsManager.getFilePathFromExportCanvasDialog(extension, label);
+    var filePath = await CommandsManager.getFilePathFromExportCanvasDialog(extension,label);
     if (filePath) {
       switch (extension) {
-        case 'svg':
-        case 'pdf':
-        case 'emf':
-        case 'ps':
-        case 'eps':
-        case 'png':
-          CommandsManager.exportItemAsImage(WindowManager.currentTab, extension, filePath);
-          break;
-        case 'tex':
-          minsky.latex(filePath, args[0]);
-          break;
-        case 'm':
-          minsky.matlab(filePath);
-          break;
+      case 'svg':
+      case 'pdf':
+      case 'emf':
+      case 'ps':
+      case 'eps':
+      case 'png':
+        CommandsManager.exportItemAsImage(WindowManager.currentTab,extension,filePath);
+        break;
+      case 'tex':
+        minsky.latex(filePath,args[0]);
+        break;
+      case 'm':
+        minsky.matlab(filePath);
+        break;
       }
     }
   }
@@ -560,43 +537,41 @@ export class ApplicationMenuManager {
       submenu: [
         {
           label: 'SVG',
-          click: () => { scope.exportCanvas('svg', 'SVG'); }
+          click: () => {scope.exportCanvas('svg','SVG');}
         },
         {
           label: 'PDF',
-          click: () => { scope.exportCanvas('pdf', 'PDF'); }
+          click: () => {scope.exportCanvas('pdf','PDF');}
         },
         {
           label: 'EMF',
           visible: Functions.isWindows(),
-          click: () => { scope.exportCanvas('emf', 'EMF'); }
+          click: () => {scope.exportCanvas('emf','EMF');}
         },
         {
           label: 'PostScript',
-          click: () => { scope.exportCanvas('eps', 'Postcsript'); }
+          click: () => {scope.exportCanvas('eps','Postcsript');}
         },
         {
           label: 'Portable Network Graphics',
-          click: () => { scope.exportCanvas('png', 'Portable Network Graphics'); }
+          click: () => {scope.exportCanvas('png','Portable Network Graphics');}
         },
         {
           label: 'LaTeX',
-          click: () => {
-            scope.exportCanvas(
-              'tex', 'LaTeX',
-              StoreManager.store.get('preferences').wrapLongEquationsInLatexExport,
-            );
-          },
+          click: () => {scope.exportCanvas(
+            'tex','LaTeX',
+            StoreManager.store.get('preferences').wrapLongEquationsInLatexExport,
+          );},
         },
         {
           label: 'Matlab',
-          click: () => { scope.exportCanvas('m', 'Matlab'); }
+          click: () => {scope.exportCanvas('m','Matlab');}
         },
       ],
     };
   }
 
-  private static async exportPlot(extension: string, command: (file: string) => void) {
+  private static async exportPlot(extension: string, command: (file:string)=>void) {
     const exportPlotDialog = await WindowManager.showSaveDialog({
       title: `Export plot as ${extension}`,
       defaultPath: ':models/plot',
@@ -621,7 +596,7 @@ export class ApplicationMenuManager {
           async click() {
             await scope.exportPlot(
               'svg',
-              (file: string) => { minsky.renderAllPlotsAsSVG(file); }
+              (file:string)=>{minsky.renderAllPlotsAsSVG(file);}
             );
           },
         },
@@ -630,7 +605,7 @@ export class ApplicationMenuManager {
           async click() {
             await scope.exportPlot(
               'csv',
-              (file: string) => { minsky.exportAllPlotsAsCSV(file); }
+              (file:string)=>{minsky.exportAllPlotsAsCSV(file);}
             );
           },
         },
@@ -684,6 +659,17 @@ export class ApplicationMenuManager {
             });
           },
         },
+        {
+          label: 'Export Variables CSV',
+          click() {
+            WindowManager.createPopupWindowWithRouting({
+              width: 400,
+              height: 300,
+              title: 'Export Variables',
+              url: `#/headless/menu/simulation/export-csv`,
+            });
+          },
+        },
       ],
     };
   }
@@ -694,7 +680,7 @@ export class ApplicationMenuManager {
       submenu: [
         {
           label: 'Ravel Documentation (F1)',
-          click() { CommandsManager.loadHelpFile("Ravel"); }
+          click() {CommandsManager.loadHelpFile("Ravel");}
         },
       ],
     };
@@ -711,13 +697,13 @@ export class ApplicationMenuManager {
   private static addOpMenu(operation: string) {
     return {
       label: operation,
-      async click() { minsky.canvas.addOperation(operation); }
+      async click() {minsky.canvas.addOperation(operation);}
     };
   }
   static async buildMenuForInsertOperations() {
     const availableOperationsMapping = await minsky.availableOperationsMapping();
     let insertOperationsMenu: MenuItem[] = [];
-    let menuNames = {
+    let menuNames={
       "constop": "Fundamental Constants",
       "binop": "Binary Operations",
       "function": "Unary Functions",
@@ -730,7 +716,7 @@ export class ApplicationMenuManager {
       insertOperationsMenu = [
         ...insertOperationsMenu,
         new MenuItem({
-          label: key in menuNames ? menuNames[key] : key,
+          label: key in menuNames? menuNames[key]: key,
           submenu: this.buildSubmenuForOperations(
             availableOperationsMapping[key] as string[]
           ),
