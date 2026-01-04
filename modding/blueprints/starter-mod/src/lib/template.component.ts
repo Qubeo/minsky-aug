@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: 'minsky-mod-template',
+    selector: 'minsky-aug-template',
     template: `<p>Template works!</p>`,
     styles: [],
 })

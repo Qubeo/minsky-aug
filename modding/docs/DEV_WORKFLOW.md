@@ -11,10 +11,10 @@ We maintain a strict separation between **Mod Source** and **Core Application**.
 ### Initial Setup
 ```bash
 # Add upstream remote (original repo)
-git remote add upstream https://github.com/Qubeo/minsky-mod.git
+git remote add upstream https://github.com/Qubeo/minsky-aug.git
 
 # Create your fork on GitHub, then:
-git remote add mymods git@github.com:YourUsername/minsky-mod.git
+git remote add mymods git@github.com:YourUsername/minsky-aug.git
 
 # Fetch all remotes
 git fetch --all

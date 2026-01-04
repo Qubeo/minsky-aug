@@ -945,7 +945,7 @@ Minsky can browse this catalog
 
 ```bash
 # Publish to npm
-npm publish @minsky-mods/analytics
+npm publish @minsky-augs/analytics
 
 # Users install via Plugin Manager
 # Minsky downloads from npm registry

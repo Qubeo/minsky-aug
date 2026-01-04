@@ -6,7 +6,7 @@ Your repository is now configured for modding with the following structure:
 
 ### Remotes
 ```bash
-origin    → https://github.com/Qubeo/minsky-mod.git (your fork)
+origin    → https://github.com/Qubeo/minsky-aug.git (your fork)
 upstream  → https://github.com/highperformancecoder/minsky.git (original)
 ```
 
@@ -230,7 +230,7 @@ git diff HEAD~5..HEAD -- gui-js/libs/mods/mod-feature/
 
 ---
 
-**Repository:** https://github.com/Qubeo/minsky-mod
+**Repository:** https://github.com/Qubeo/minsky-aug
 **Upstream:** https://github.com/highperformancecoder/minsky
 **Current Branch:** dev
 **Last Updated:** 2026-01-04

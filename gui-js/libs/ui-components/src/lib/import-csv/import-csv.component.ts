@@ -57,7 +57,7 @@ class Dimension {
     MatAutocompleteModule,
     MatOptionModule,
     NgStyle
-],
+  ],
 })
 export class ImportCsvComponent extends Zoomable implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
   form: FormGroup;
@@ -189,8 +189,8 @@ export class ImportCsvComponent extends Zoomable implements OnInit, AfterViewIni
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       this.csvDialog = new CSVDialog(params.csvDialog);
       this.systemWindowId = params.systemWindowId;
-      this.isInvokedUsingToolbar = params.isInvokedUsingToolbar==="true";
-      this.newTable = params.dropTable==="true";
+      this.isInvokedUsingToolbar = params.isInvokedUsingToolbar === "true";
+      this.newTable = params.dropTable === "true";
       this.examplesPath = params.examplesPath;
     });
 
@@ -270,7 +270,7 @@ export class ImportCsvComponent extends Zoomable implements OnInit, AfterViewIni
 
   updateForm() {
     this.url.setValue(this.dialogState.url);
-    if (!this.files && this.dialogState.url) this.files=[this.dialogState.url];
+    if (!this.files && this.dialogState.url) this.files = [this.dialogState.url];
 
     this.dontFail.setValue(this.dialogState.spec.dontFail);
     this.counter.setValue(this.dialogState.spec.counter);
@@ -387,6 +387,54 @@ export class ImportCsvComponent extends Zoomable implements OnInit, AfterViewIni
     this.selected = new Array(this.dialogState.spec.numCols).fill(false);
     this.selectableDimensionNames = this.parsedLines[header] ? this.parsedLines[header].map(header => this.getSelectableNameDimensions(header)) : [];
     this.updateColumnTypes();
+
+    // Semantic auto-mapping: If there's a header row, try to match columns to Minsky metadata
+    if (this.parsedLines[header]) {
+      this.applySemanticMapping(this.parsedLines[header]);
+    }
+  }
+
+  private applySemanticMapping(headers: string[]) {
+    // Standard Minsky Metadata Headers
+    const semanticMap: Record<string, string> = {
+      'name': 'name',
+      'units': 'units',
+      'description': 'description',
+      'detailedtext': 'description', // alias
+      'type': 'type',
+      'value': 'value',
+      'init': 'init',
+      'initialvalue': 'init' // alias
+    };
+
+    headers.forEach((header, index) => {
+      const cleanHeader = header.toLowerCase().replace(/\s/g, '');
+      const mappedField = semanticMap[cleanHeader];
+
+      if (mappedField) {
+        console.log(`[Semantic Mapping] Auto-recognised column ${index} as '${mappedField}'`);
+
+        switch (mappedField) {
+          case 'name':
+            this.parameterName.setValue(this.parsedLines[this.dialogState.spec.dataRowOffset]?.[index] || this.parameterName.value);
+            break;
+          case 'units':
+            // If it's a known metadata field, we might want to mark it as an axis or metadata
+            this.colType[index] = ColType.ignore; // Metadata columns are usually 'ignored' by the main data parser
+            break;
+          case 'description':
+            this.shortDescription.setValue(this.parsedLines[this.dialogState.spec.dataRowOffset]?.[index] || this.shortDescription.value);
+            break;
+        }
+
+        // Update C++ spec if necessary for specific column roles
+        if (mappedField === 'units' || mappedField === 'description') {
+          this.dialogState.spec.dimensionNames[index] = mappedField;
+        }
+      }
+    });
+
+    this.cdr.detectChanges();
   }
 
   hypercubeSize() {
@@ -549,8 +597,8 @@ export class ImportCsvComponent extends Zoomable implements OnInit, AfterViewIni
     if (this.dialogState.spec.dataCols.length === 0)
       this.dialogState.spec.counter = true;
     this.csvDialog.spec.$properties(this.dialogState.spec);
-    
-    if (!this.files || !this.files[0]) this.files=[this.url.value];
+
+    if (!this.files || !this.files[0]) this.files = [this.url.value];
     if (this.files && (this.dropTable.value || this.newTable))
       this.electronService.minsky.databaseIngestor.createTable(this.files[0]);
     // returns an error message on error
@@ -576,13 +624,13 @@ export class ImportCsvComponent extends Zoomable implements OnInit, AfterViewIni
 
     if (this.isInvokedUsingToolbar && this.parameterName.value) {
       // rename variable if newly added variable is still focussed
-      let vv=new VariableValue(this.csvDialog.$prefix());
-      let v=new VariableBase(this.electronService.minsky.canvas.itemFocus);
-      let vvId=await vv?.valueId();
-      if (await v?.valueId()!==vvId) {// this is not a focussed item
-        v=new VariableBase(this.electronService.minsky.canvas.item); // item has been clicked
-        if (await v?.valueId()!==vvId)
-          v=null;
+      let vv = new VariableValue(this.csvDialog.$prefix());
+      let v = new VariableBase(this.electronService.minsky.canvas.itemFocus);
+      let vvId = await vv?.valueId();
+      if (await v?.valueId() !== vvId) {// this is not a focussed item
+        v = new VariableBase(this.electronService.minsky.canvas.item); // item has been clicked
+        if (await v?.valueId() !== vvId)
+          v = null;
       }
       if (v) {
         v.name(this.parameterName.value);

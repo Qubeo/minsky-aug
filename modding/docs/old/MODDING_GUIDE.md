@@ -36,10 +36,10 @@ This guide describes the recommended workflow for creating clean, modular modifi
 ### Initial Setup
 ```bash
 # Add upstream remote (original repo)
-git remote add upstream https://github.com/Qubeo/minsky-mod.git
+git remote add upstream https://github.com/Qubeo/minsky-aug.git
 
 # Create your fork on GitHub, then:
-git remote add mymods git@github.com:YourUsername/minsky-mod.git
+git remote add mymods git@github.com:YourUsername/minsky-aug.git
 
 # Fetch all remotes
 git fetch --all
@@ -581,7 +581,7 @@ npx nx run-many --target=build --projects=mod-*
 ### Q: How do I share mods with others?
 **A:** Push your `mod/*` branches to your fork. Others can cherry-pick them:
 ```bash
-git fetch https://github.com/YourUsername/minsky-mod.git mod/feature-name
+git fetch https://github.com/YourUsername/minsky-aug.git mod/feature-name
 git cherry-pick FETCH_HEAD
 ```
 
