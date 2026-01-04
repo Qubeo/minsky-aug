@@ -14,6 +14,14 @@ This mod comes with automated install/uninstall scripts.
    ```
 3. Rebuild/Restart Minsky.
 
+## Performance Optimization
+
+For large models with thousands of variables, use the **Optimized Installer**:
+```bash
+node mods/mod-scenario-loader/install-opt.js
+```
+This reduces variable lookup time from seconds to milliseconds. See the [Performance Walkthrough](./docs/WALKTHROUGH_PERFORMANCE.md) for technical details and benchmarking.
+
 ### To Uninstall
 1. Run from repository root:
    ```bash
@@ -21,33 +29,17 @@ This mod comes with automated install/uninstall scripts.
    ```
    *Note: This restores files from `.bak` versions created during installation.*
 
-## Implementation Location
+## Implementation Details
 
-The actual Angular implementation is in:
-```
-gui-js/libs/mods/mod-scenario-loader/
-```
-
-A symlink to the source is provided here for convenience:
-```
-mods/mod-scenario-loader/src -> gui-js/libs/mods/mod-scenario-loader/src
-```
-
-## Why This Structure?
-
-Angular mods are Nx libraries that integrate with the GUI build system. They must live in `gui-js/libs/` to:
-- Share TypeScript path mappings (`@minsky/mod-scenario-loader`)
-- Use Angular dependency injection
-- Be testable with `nx test mod-scenario-loader`
-
-The `mods/` folder at the repository root contains:
-- Documentation and planning (`mods/docs/`)
-- Tooling scripts (`mods/tools/`)
-- Symlinks to implementations (this folder)
+The implementation follows the clean "Mod Side-Load" architecture:
+-   **Source**: `mods/mod-scenario-loader/src/`
+-   **Build Destination**: `gui-js/libs/mods/mod-scenario-loader/` (Managed by installer).
 
 ## Documentation
 
+- **Performance Success Story**: [WALKTHROUGH_PERFORMANCE.md](./docs/WALKTHROUGH_PERFORMANCE.md)
 - **Planning Doc**: [SCENARIO_LOADER_PLAN.md](./SCENARIO_LOADER_PLAN.md)
+- **Base Changes**: [BASE_CHANGES.md](./BASE_CHANGES.md) (Core patches documentation)
 - **Test CSV**: [test-scenario.csv](./test-scenario.csv)
 - **Modding Guide**: [MODDING_GUIDE.md](../docs/MODDING_GUIDE.md)
 
