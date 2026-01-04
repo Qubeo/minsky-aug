@@ -57,3 +57,6 @@ gui-js/libs/mods/*/.nx/
 *.minsky-plugin
 *.plugin.zip
 gui-js/build/
+
+# Installed Mods
+gui-js/libs/mods/
