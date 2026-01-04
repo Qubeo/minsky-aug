@@ -1,37 +1,37 @@
-# Zero Touch Architecture Implemented
+# Zero-Touch Modding Architecture: Final Consolidation
 
-I have implemented the "Zero Touch" modding architecture. This system allows adding mods without manually patching core file logic, using a build-time configuration generation approach.
+The Zero-Touch architecture is now fully consolidated, restructured, and synchronized across branches. This ensures a clean, maintainable foundation for Minsky modding without manual code changes to the core application.
 
-## Key Components
+## 🏗️ Architecture Overview
 
-### 1. Mod Installation
-- **Tool**: `node tools/install-mod.js <mod-id>`
-- **Action**: Copies the mod from `mods/<id>` to `gui-js/libs/mods/<id>` (the "Installed" area).
-- **Reason**: Ensures [gui-js](file:///home/qubeo/prog/minsky-mod/gui-js) is self-contained and portable.
+The modding ecosystem has been moved to a dedicated `modding/` namespace at the root:
 
-### 2. Configuration Generation
-- **Tool**: `node tools/generate-mod-config.js` (runs automatically after install)
-- **Output**: [gui-js/libs/core/src/lib/mod-config.generated.ts](file:///home/qubeo/prog/minsky-mod/gui-js/libs/core/src/lib/mod-config.generated.ts)
-- **Content**: Automatically detects active mods, their menu items, routes, and IPC handlers from [manifest.json](file:///home/qubeo/prog/minsky-mod/mods/mod-scenario-loader/manifest.json).
+*   **`modding/blueprints/`**: Standardized templates like `starter-mod` for new developers.
+*   **`modding/docs/`**: Comprehensive guides, plans, and technical walkthroughs.
+*   **`modding/tools/`**: Automation scripts for installation (`install-mod.js`) and config generation (`generate-mod-config.js`).
+*   **`modding/mods/`**: Functional plugins like `scenario-loader` and `csv-export`.
 
-### 3. Core Integration (Patched Once)
-- **ModRegistry**: Read the generated config at runtime.
-- **ApplicationMenuManager**: Injects menu items from registry.
-- **SimulationRouting**: Injects routes from registry.
-- **ElectronEvents**: Injects IPC handlers from registry.
+## 🌳 Branch Synchronization Strategy
 
-## Verification
-- **Verified with**: `mod-scenario-loader`
-- **Results**:
-    - Manifest successfully updated to include IPC definition.
-    - [install-mod.js](file:///home/qubeo/prog/minsky-mod/tools/install-mod.js) copied files and generated config.
-    - Generated config contains correct IPC mapping:
-      ```typescript
-      { channel: 'read-file-text', handler: async (...args: any[]) => (await import('@minsky/mod-scenario-loader')).ipcHandlers['read-file-text'](...args) }
-      ```
-    - Core files updated to consume registry.
+We have established two key tiers for the ecosystem:
 
-## How to Test
-1. Run `node tools/install-mod.js mod-scenario-loader`.
-2. Build/Start the Minsky Electron app.
-3. Check for "Load Scenario..." under Simulation menu.
+### 1. Source of Truth (`mod/scenario-loader`) -> [GOTO](file:///home/qubeo/prog/minsky-mod/modding/mods/scenario-loader)
+Contains the **entire** ecosystem, including functional mods. This is where active feature development occurs.
+- ✅ All large binaries (`*.so`, `typescriptAPI`) purged.
+- ✅ All mods standardized to the same Zero-Touch protocol.
+- ✅ Build-breaking `readFileText` type issues resolved in `ScenarioLoaderService`.
+
+### 2. Infrastructure Baseline (`mod/zero-touch`) -> [GOTO](file:///home/qubeo/prog/minsky-mod/modding/docs)
+A pristine, mod-free baseline designed for merging into the main development branch.
+- ✅ Contains all **Infrastucture** (tools, registry, core hooks).
+- ✅ Contains all **Documentation** and **Blueprints**.
+- ✅ **Functional mods** are ignored by Git (`.gitignore`) on this branch, preventing specific plugin code from polluting the core repo.
+
+## ✅ Verification Results
+
+- **Dynamic Deployment**: `node modding/tools/install-mod.js scenario-loader` successfully deploys and registers the mod.
+- **IPC Isolation**: IPC handlers are lazy-imported via direct paths, successfully avoiding Angular/Main-process leaks and `PlatformLocation` JIT errors.
+- **Build Integrity**: The repo is free of binary bloat, and `npm start` builds correctly with independent mod route/menu injection.
+
+> [!TIP]
+> To create a new mod, use the blueprint: [starter-mod](file:///home/qubeo/prog/minsky-mod/modding/blueprints/starter-mod).
