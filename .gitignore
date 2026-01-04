@@ -43,3 +43,16 @@ gui-js/.angular/*
 doc/minsky/*
 # CodeQL temporary files
 _codeql_detected_source_root
+
+# Build temporary files
+*.o.tmp
+
+# Build log
+build.log
+
+# Plugin development
+gui-js/libs/mods/*/dist/
+gui-js/libs/mods/*/dist-plugin/
+gui-js/libs/mods/*/.nx/
+*.minsky-plugin
+*.plugin.zip
