@@ -3,6 +3,8 @@
 Dynamic flow systems program to simulate economic flows (ie. complex system dynamics).
 For a full overview, please see the [Manual](http://minsky.sf.net/manual/minsky.html)
 
+> **🔧 Looking to mod or extend Minsky?** → See [`/mods/`](mods/) directory for all modding infrastructure, documentation, and tools.
+
 - [File Structure](File%20structure.md) for an overview of folders and files
 - [Architecture](Architecture.md) for an overview of the app and DAG engine
 - [Minsky Schema](githubdocs/schema.md) describes the schema of the Minsky .mky model files
