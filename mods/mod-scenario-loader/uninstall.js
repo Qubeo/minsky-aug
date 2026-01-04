@@ -1,50 +1,57 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT_DIR = process.cwd();
-const TARGET_LIB = path.join(ROOT_DIR, 'gui-js/libs/mods/mod-scenario-loader');
+// 1. Locate gui-js root (Robust sibling search)
+let currentDir = process.cwd();
+let guiJsRoot = null;
 
-const FILES = {
-    TSCONFIG: path.join(ROOT_DIR, 'gui-js/tsconfig.base.json'),
-    SIM_MODULE: path.join(ROOT_DIR, 'gui-js/libs/menu/src/lib/simulation/simulation.module.ts'),
-    SIM_ROUTING: path.join(ROOT_DIR, 'gui-js/libs/menu/src/lib/simulation/simulation-routing.module.ts'),
-    APP_MENU: path.join(ROOT_DIR, 'gui-js/apps/minsky-electron/src/app/managers/ApplicationMenuManager.ts'),
-    CONSTANTS: path.join(ROOT_DIR, 'gui-js/libs/shared/src/lib/constants/constants.ts'),
-    ELECTRON_EVENTS: path.join(ROOT_DIR, 'gui-js/apps/minsky-electron/src/app/events/electron.events.ts'),
-    ELECTRON_SERVICE: path.join(ROOT_DIR, 'gui-js/libs/core/src/lib/services/electron/electron.service.ts'),
-};
+while (currentDir !== path.parse(currentDir).root) {
+    const potentialGuiJs = path.join(currentDir, 'gui-js');
+    if (fs.existsSync(path.join(potentialGuiJs, 'tsconfig.base.json'))) {
+        guiJsRoot = potentialGuiJs;
+        break;
+    }
+    currentDir = path.dirname(currentDir);
+}
 
-function restore(filePath) {
-    const bakPath = filePath + '.bak';
-    if (fs.existsSync(bakPath)) {
-        console.log(`Restoring ${path.basename(filePath)} from backup...`);
-        fs.copyFileSync(bakPath, filePath);
-        fs.unlinkSync(bakPath); // Clean up backup
+if (!guiJsRoot) {
+    console.error("Error: Could not find gui-js directory.");
+    process.exit(1);
+}
+console.log(`Repository root found at: ${guiJsRoot}`);
+
+const filesToRestore = [
+    'tsconfig.base.json',
+    'libs/menu/src/lib/simulation/simulation.module.ts',
+    'libs/menu/src/lib/simulation/simulation-routing.module.ts',
+    'apps/minsky-electron/src/app/managers/ApplicationMenuManager.ts',
+    'libs/shared/src/lib/constants/constants.ts', // Included for legacy cleanup
+    'libs/core/src/lib/services/electron/electron.service.ts',
+    'apps/minsky-electron/src/app/events/electron.events.ts'
+];
+
+console.log("Restoring backups...");
+
+filesToRestore.forEach(file => {
+    const filePath = path.join(guiJsRoot, file);
+    const backupPath = filePath + '.bak';
+
+    if (fs.existsSync(backupPath)) {
+        console.log(`Restoring ${path.basename(filePath)}...`);
+        fs.copyFileSync(backupPath, filePath);
+        fs.unlinkSync(backupPath);
     } else {
-        console.log(`No backup found for ${path.basename(filePath)}, skipping restore.`);
+        // Silently skip if no backup (already clean)
     }
+});
+
+const MOD_NAME = 'mod-scenario-loader';
+const LIBS_MODS_DIR = path.join(guiJsRoot, 'libs/mods');
+const MOD_SYMLINK = path.join(LIBS_MODS_DIR, MOD_NAME);
+
+if (fs.existsSync(MOD_SYMLINK)) {
+    console.log("Removing symlink...");
+    fs.unlinkSync(MOD_SYMLINK);
 }
 
-function removeLib() {
-    if (fs.existsSync(TARGET_LIB)) {
-        console.log('Removing library directory...');
-        fs.rmSync(TARGET_LIB, { recursive: true, force: true });
-    }
-}
-
-function main() {
-    console.log('Uninstalling Scenario Loader Mod...');
-
-    // Restore files in reverse order of installation (good practice)
-    const filesToRestore = Object.values(FILES);
-    for (const file of filesToRestore) {
-        restore(file);
-    }
-
-    // Remove code
-    removeLib();
-
-    console.log('Uninstallation complete! Please run npm start or rebuild.');
-}
-
-main();
+console.log("Uninstallation complete.");

@@ -1,231 +1,129 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
-// Configuration
-const ROOT_DIR = process.cwd(); // Run from Minsky repo root
-const SOURCE_LIB = path.join(__dirname, 'src'); // Use the symlink in this dir
-const TARGET_LIB = path.join(ROOT_DIR, 'gui-js/libs/mods/mod-scenario-loader');
+// 1. Locate gui-js root (Robust sibling search)
+let currentDir = process.cwd();
+let guiJsRoot = null;
 
-const FILES = {
-    TSCONFIG: path.join(ROOT_DIR, 'gui-js/tsconfig.base.json'),
-    SIM_MODULE: path.join(ROOT_DIR, 'gui-js/libs/menu/src/lib/simulation/simulation.module.ts'),
-    SIM_ROUTING: path.join(ROOT_DIR, 'gui-js/libs/menu/src/lib/simulation/simulation-routing.module.ts'),
-    APP_MENU: path.join(ROOT_DIR, 'gui-js/apps/minsky-electron/src/app/managers/ApplicationMenuManager.ts'),
-    CONSTANTS: path.join(ROOT_DIR, 'gui-js/libs/shared/src/lib/constants/constants.ts'),
-    ELECTRON_EVENTS: path.join(ROOT_DIR, 'gui-js/apps/minsky-electron/src/app/events/electron.events.ts'),
-    ELECTRON_SERVICE: path.join(ROOT_DIR, 'gui-js/libs/core/src/lib/services/electron/electron.service.ts'),
-};
-
-// Utils
-function backup(filePath) {
-    const bakPath = filePath + '.bak';
-    if (fs.existsSync(filePath) && !fs.existsSync(bakPath)) {
-        console.log(`Backing up ${path.basename(filePath)}...`);
-        fs.copyFileSync(filePath, bakPath);
+while (currentDir !== path.parse(currentDir).root) {
+    const potentialGuiJs = path.join(currentDir, 'gui-js');
+    if (fs.existsSync(path.join(potentialGuiJs, 'tsconfig.base.json'))) {
+        guiJsRoot = potentialGuiJs;
+        break;
     }
+    currentDir = path.dirname(currentDir);
 }
 
-function restore(filePath) {
-    const bakPath = filePath + '.bak';
-    if (fs.existsSync(bakPath)) {
-        console.log(`Restoring ${path.basename(filePath)}...`);
-        fs.copyFileSync(bakPath, filePath);
-        // Optional: fs.unlinkSync(bakPath); // Keep backup or delete? Let's keep for safety
-    }
+if (!guiJsRoot) {
+    console.error("Error: Could not find gui-js directory. Ensure you are running this from within the Minsky repo.");
+    process.exit(1);
+}
+console.log(`Repository root found at: ${guiJsRoot}`);
+
+const MOD_NAME = 'mod-scenario-loader';
+const MOD_SRC = __dirname;
+const PATCHES_DIR = path.join(MOD_SRC, 'patches');
+const LIBS_MODS_DIR = path.join(guiJsRoot, 'libs/mods');
+const MOD_SYMLINK = path.join(LIBS_MODS_DIR, MOD_NAME);
+const MANIFEST_PATH = path.join(MOD_SRC, 'manifest.json');
+
+// 2. Load Manifest
+if (!fs.existsSync(MANIFEST_PATH)) {
+    console.error("Error: manifest.json not found.");
+    process.exit(1);
+}
+const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf-8'));
+console.log(`Loaded Manifest for ${manifest.id} v${manifest.version}`);
+
+// 3. Verify Checksums
+console.log("Verifying core file checksums...");
+let checksumsMatch = true;
+
+function calculateChecksum(filePath) {
+    if (!fs.existsSync(filePath)) return null;
+    const fileBuffer = fs.readFileSync(filePath);
+    const hashSum = crypto.createHash('sha256');
+    hashSum.update(fileBuffer);
+    return hashSum.digest('hex');
 }
 
-function readFile(filePath) {
-    return fs.readFileSync(filePath, 'utf-8');
-}
+for (const [relPath, expectedSum] of Object.entries(manifest.checksums)) {
+    const filePath = path.join(guiJsRoot, relPath);
+    const actualSum = calculateChecksum(filePath);
 
-function writeFile(filePath, content) {
-    fs.writeFileSync(filePath, content, 'utf-8');
-}
-
-// Actions
-function installLib() {
-    console.log('Installing library files...');
-    if (!fs.existsSync(TARGET_LIB)) {
-        fs.mkdirSync(TARGET_LIB, { recursive: true });
-        // Recursive copy implementation
-        copyRecursive(SOURCE_LIB, TARGET_LIB);
+    if (!actualSum) {
+        console.error(`MISSING: ${relPath}`);
+        checksumsMatch = false;
+    } else if (actualSum !== expectedSum) {
+        // Check if it's already patched (compare with patch file?)
+        // For now, strict check.
+        console.warn(`CHECKSUM MISMATCH: ${relPath}`);
+        console.warn(`  Expected: ${expectedSum}`);
+        console.warn(`  Actual:   ${actualSum}`);
+        checksumsMatch = false;
     } else {
-        console.log('Library directory already exists. Skipping copy.');
+        console.log(`OK: ${relPath}`);
     }
 }
 
-function copyRecursive(src, dest) {
-    const exists = fs.existsSync(src);
-    const stats = exists && fs.statSync(src);
-    const isDirectory = exists && stats.isDirectory();
-    if (isDirectory) {
-        if (!fs.existsSync(dest)) fs.mkdirSync(dest);
-        fs.readdirSync(src).forEach((childItemName) => {
-            copyRecursive(path.join(src, childItemName), path.join(dest, childItemName));
-        });
-    } else {
-        fs.copyFileSync(src, dest);
+if (!checksumsMatch) {
+    console.error("\n[ERROR] Core file checksums do not match manifest.");
+    console.error("This means your Minsky version might be different or already modified.");
+    console.error("Installation aborted to prevent corruption.");
+    console.error("Run 'node uninstall.js' to restore backups if you previously installed.");
+    process.exit(1);
+}
+
+// 4. Ensure libs/mods exists
+if (!fs.existsSync(LIBS_MODS_DIR)) {
+    fs.mkdirSync(LIBS_MODS_DIR, { recursive: true });
+}
+
+// 5. Symlink mod source
+if (!fs.existsSync(MOD_SYMLINK)) {
+    console.log("Creating symlink...");
+    const relPath = path.relative(LIBS_MODS_DIR, MOD_SRC);
+    try {
+        fs.symlinkSync(relPath, MOD_SYMLINK, 'dir');
+        console.log(`Symlink created.`);
+    } catch (e) {
+        console.error("Symlink failed", e);
     }
 }
 
-function patchTsConfig() {
-    const file = FILES.TSCONFIG;
-    backup(file);
-    const json = JSON.parse(readFile(file));
+// 6. File Replacements
+const fileMappings = [
+    { src: 'tsconfig.base.json', dest: 'tsconfig.base.json' },
+    { src: 'simulation.module.ts', dest: 'libs/menu/src/lib/simulation/simulation.module.ts' },
+    { src: 'simulation-routing.module.ts', dest: 'libs/menu/src/lib/simulation/simulation-routing.module.ts' },
+    { src: 'ApplicationMenuManager.ts', dest: 'apps/minsky-electron/src/app/managers/ApplicationMenuManager.ts' },
+    // Removed constants.ts
+    { src: 'electron.service.ts', dest: 'libs/core/src/lib/services/electron/electron.service.ts' },
+    { src: 'electron.events.ts', dest: 'apps/minsky-electron/src/app/events/electron.events.ts' }
+];
 
-    if (!json.compilerOptions.paths['@minsky/mod-scenario-loader']) {
-        console.log('Patching tsconfig.base.json...');
-        json.compilerOptions.paths['@minsky/mod-scenario-loader'] = [
-            "libs/mods/mod-scenario-loader/src/index.ts"
-        ];
-        writeFile(file, JSON.stringify(json, null, 2));
+function backupAndCopy(mapping) {
+    const srcPath = path.join(PATCHES_DIR, mapping.src);
+    const destPath = path.join(guiJsRoot, mapping.dest);
+    const backupPath = destPath + '.bak';
+
+    if (!fs.existsSync(srcPath)) {
+        console.error(`Patch file missing: ${srcPath}`);
+        return;
     }
-}
 
-function patchSimModule() {
-    const file = FILES.SIM_MODULE;
-    backup(file);
-    let content = readFile(file);
-
-    if (!content.includes('ScenarioLoaderComponent')) {
-        console.log('Patching simulation.module.ts...');
-        content = "import { ScenarioLoaderComponent } from '@minsky/mod-scenario-loader';\n" + content;
-        // content = content.replace(/(imports:\s*\[)/, '$1 ScenarioLoaderComponent,'); // Simple regex
-        // Safer: find imports array and append
-        const regex = /(imports:\s*\[[^\]]*)/;
-        content = content.replace(regex, "$1, ScenarioLoaderComponent");
-        writeFile(file, content);
-    }
-}
-
-function patchSimRouting() {
-    const file = FILES.SIM_ROUTING;
-    backup(file);
-    let content = readFile(file);
-
-    if (!content.includes('load-scenario')) {
-        console.log('Patching simulation-routing.module.ts...');
-        content = "import { ScenarioLoaderComponent } from '@minsky/mod-scenario-loader';\n" + content;
-        const route = "  { path: 'load-scenario', component: ScenarioLoaderComponent },";
-        const regex = /(const routes: Routes = \[\r?\n)/;
-        content = content.replace(regex, `$1${route}\n`);
-        writeFile(file, content);
-    }
-}
-
-function patchAppMenu() {
-    const file = FILES.APP_MENU;
-    backup(file);
-    let content = readFile(file);
-
-    if (!content.includes('Load Scenario')) {
-        console.log('Patching ApplicationMenuManager.ts...');
-        // Hook before 'Dimensional Analysis'
-        const anchor = "label: 'Dimensional Analysis'";
-        const injection = `
-        {
-          label: 'Load Scenario...',
-          click: async () => {
-             WindowManager.createPopupWindowWithRouting({
-              width: 800,
-              height: 600,
-              title: 'Load Scenario',
-              url: \`#/headless/menu/simulation/load-scenario\`,
-              modal: true,
-            });
-          }
-        },`;
-
-        // Find anchor
-        if (content.includes(anchor)) {
-            // Need regex to replace properly?
-            // Just simple replace
-            content = content.replace(anchor, `${injection}\n        ${anchor}`);
-            writeFile(file, content);
-        } else {
-            console.error("Could not find anchor in ApplicationMenuManager");
+    if (fs.existsSync(destPath)) {
+        if (!fs.existsSync(backupPath)) {
+            console.log(`Backing up ${path.basename(destPath)}...`);
+            fs.copyFileSync(destPath, backupPath);
         }
     }
+    console.log(`Patching ${path.basename(destPath)}...`);
+    fs.copyFileSync(srcPath, destPath);
 }
 
-function patchConstants() {
-    const file = FILES.CONSTANTS;
-    backup(file);
-    let content = readFile(file);
+console.log("\nApplying file patches...");
+fileMappings.forEach(backupAndCopy);
 
-    if (!content.includes('READ_FILE_TEXT')) {
-        console.log('Patching constants.ts...');
-        const regex = /(export const events = \{)/;
-        content = content.replace(regex, "$1\n  READ_FILE_TEXT: 'read-file-text',");
-        writeFile(file, content);
-    }
-}
-
-function patchElectronEvents() {
-    const file = FILES.ELECTRON_EVENTS;
-    backup(file);
-    let content = readFile(file);
-
-    if (!content.includes('READ_FILE_TEXT')) {
-        console.log('Patching electron.events.ts...');
-        const snippet = `
-ipcMain.handle(events.READ_FILE_TEXT, async (event, filePath: string) => {
-  const fs = require('fs');
-  return fs.readFileSync(filePath, 'utf-8');
-});
-`;
-        // Append to end of file, inside a block? No, usually these are top level or inside init.
-        // In Minsky, they seem to be inside AppEvents.processEvents or similar.
-        // Let's look for "ipcMain.handle" and append after the last one? 
-        // Or just find a known event like SAVE_FILE_DIALOG.
-        const anchor = "ipcMain.handle(events.SAVE_FILE_DIALOG";
-        if (content.includes(anchor)) {
-            // We need to find the CLOSING brace of that handle block. Tricky with regex.
-            // Better: Append at the end of the file if it's cleaner, but it needs to be inside scope if applicable.
-            // Actually, looking at the file structure, they are often inside a method.
-            // A safer bet: Find a specific handle call and insert BEFORE it.
-            const beforeAnchor = "ipcMain.handle(events.OPEN_FILE_DIALOG";
-            // content = content.replace(beforeAnchor, `${snippet}\n    ${beforeAnchor}`);
-            // Let's assume we can just append for now, or use a specific known location.
-            // Since I can't guarantee structure, manual might be safer? 
-            // But for this script, let's try to be smart.
-            // I will use `OPEN_FILE_DIALOG` as anchor and insert BEFORE it.
-            content = content.replace(beforeAnchor, `${snippet}\n    ${beforeAnchor}`);
-            writeFile(file, content);
-        }
-    }
-}
-
-function patchElectronService() {
-    const file = FILES.ELECTRON_SERVICE;
-    backup(file);
-    let content = readFile(file);
-
-    if (!content.includes('readFileText')) {
-        console.log('Patching electron.service.ts...');
-        const snippet = `
-  async readFileText(filePath: string): Promise<string> {
-    return await this.ipcRenderer.invoke(events.READ_FILE_TEXT, filePath);
-  }
-`;
-        // Insert inside class ElectronService
-        const anchor = "export class ElectronService {";
-        content = content.replace(anchor, `${anchor}\n${snippet}`);
-        writeFile(file, content);
-    }
-}
-
-// Run
-function main() {
-    installLib();
-    patchTsConfig();
-    patchSimModule();
-    patchSimRouting();
-    patchAppMenu();
-    patchConstants();
-    patchElectronEvents();
-    patchElectronService();
-    console.log('Installation complete! Please run npm start or rebuild.');
-}
-
-main();
+console.log("\nInstallation complete! Please run 'npm start' or rebuild.");
