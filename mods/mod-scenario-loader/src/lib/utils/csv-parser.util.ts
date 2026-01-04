@@ -14,13 +14,21 @@ export class CsvParser {
             throw new Error('CSV must have at least one scenario column');
         }
 
-        const scenarioNames = headers.slice(1);
-        const scenarios: ScenarioColumn[] = scenarioNames.map(name => ({
-            name: name.trim(),
+        // Identify special columns (case-insensitive)
+        const unitsIndex = headers.findIndex(h => h.toLowerCase() === 'units' || h.toLowerCase() === 'unit');
+        const descIndex = headers.findIndex(h => h.toLowerCase() === 'description' || h.toLowerCase() === 'desc');
+
+        // Identify scenario columns (all other columns starting from index 1)
+        const scenarioIndices = headers.map((h, i) => i).filter(i => i > 0 && i !== unitsIndex && i !== descIndex);
+
+        const scenarios: ScenarioColumn[] = scenarioIndices.map(i => ({
+            name: headers[i].trim(),
             values: []
         }));
 
         const parameters: string[] = [];
+        const units: string[] = [];
+        const descriptions: string[] = [];
 
         for (let i = 1; i < lines.length; i++) {
             const cells = this.parseLine(lines[i]);
@@ -28,13 +36,24 @@ export class CsvParser {
 
             parameters.push(cells[0].trim());
 
-            for (let j = 0; j < scenarios.length; j++) {
-                const value = cells[j + 1]?.trim();
+            // Extract metadata if columns exist
+            if (unitsIndex !== -1) units.push(cells[unitsIndex]?.trim() || '');
+            if (descIndex !== -1) descriptions.push(cells[descIndex]?.trim() || '');
+
+            // Extract scenario values
+            for (let j = 0; j < scenarioIndices.length; j++) {
+                const colIndex = scenarioIndices[j];
+                const value = cells[colIndex]?.trim();
                 scenarios[j].values.push(this.parseNumeric(value));
             }
         }
 
-        return { parameters, scenarios };
+        return {
+            parameters,
+            scenarios,
+            units: unitsIndex !== -1 ? units : undefined,
+            descriptions: descIndex !== -1 ? descriptions : undefined
+        };
     }
 
     private static parseLine(line: string): string[] {

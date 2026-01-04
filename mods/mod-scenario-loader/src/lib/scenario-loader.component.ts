@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ElectronService } from '@minsky/core';
 import { ScenarioLoaderService } from './scenario-loader.service';
-import { ScenarioData, ValidationResult } from './models/scenario-data.model';
+import { ScenarioData, ValidationResult, ParameterMapping } from './models/scenario-data.model';
 import { MissingVariablesDialogComponent } from './dialogs/missing-variables-dialog.component';
 import { PreviewDialogComponent } from './dialogs/preview-dialog.component';
 
@@ -125,7 +125,11 @@ export class ScenarioLoaderComponent implements OnInit {
             if (validation.missingVariables.length > 0) {
                 const create = await this.showMissingDialog(validation.missingVariables);
                 if (create) {
-                    await this.scenarioService.createMissingVariables(validation.missingVariables);
+                    // Filter mappings to find the missing ones to pass to creation service
+                    // Missing variables are those where 'matched' is false.
+                    const missingMappings = validation.mappings.filter(m => !m.matched);
+                    await this.scenarioService.createMissingVariables(missingMappings);
+
                     // Re-validate after creating
                     const revalidation = await this.scenarioService.validateScenario(
                         this.scenarioData,
@@ -160,7 +164,7 @@ export class ScenarioLoaderComponent implements OnInit {
         return await dialogRef.afterClosed().toPromise();
     }
 
-    private async showPreviewDialog(mappings: any[]): Promise<boolean> {
+    private async showPreviewDialog(mappings: ParameterMapping[]): Promise<boolean> {
         const dialogRef = this.dialog.open(PreviewDialogComponent, {
             width: '500px',
             data: { mappings }

@@ -40,18 +40,16 @@ filesToRestore.forEach(file => {
         console.log(`Restoring ${path.basename(filePath)}...`);
         fs.copyFileSync(backupPath, filePath);
         fs.unlinkSync(backupPath);
-    } else {
-        // Silently skip if no backup (already clean)
     }
 });
 
 const MOD_NAME = 'mod-scenario-loader';
 const LIBS_MODS_DIR = path.join(guiJsRoot, 'libs/mods');
-const MOD_SYMLINK = path.join(LIBS_MODS_DIR, MOD_NAME);
+const MOD_DEST_DIR = path.join(LIBS_MODS_DIR, MOD_NAME);
 
-if (fs.existsSync(MOD_SYMLINK)) {
-    console.log("Removing symlink...");
-    fs.unlinkSync(MOD_SYMLINK);
+if (fs.existsSync(MOD_DEST_DIR)) {
+    console.log(`Removing mod directory: ${MOD_DEST_DIR}...`);
+    fs.rmSync(MOD_DEST_DIR, { recursive: true, force: true });
 }
 
 console.log("Uninstallation complete.");

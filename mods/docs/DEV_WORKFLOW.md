@@ -3,7 +3,8 @@
 ## Philosophy
 We maintain a strict separation between **Mod Source** and **Core Application**.
 -   **Source of Truth**: `mods/` directory (or external repo).
--   **Build Integration**: `gui-js/libs/mods/` (symlinks).
+-   **Source of Truth**: `mods/` directory (or external repo).
+-   **Build Integration**: `gui-js/libs/mods/` (Copied via installer).
 
 ## Git Workflow
 
@@ -59,14 +60,14 @@ repo/
 │   ├── BASE_CHANGES.md             <-- Documentation of core patches
 │   └── README.md
 │
-└── gui-js/libs/mods/mod-scenario-loader  <-- SYMLINK
-    └── (points to mods/mod-scenario-loader)
+└── gui-js/libs/mods/mod-scenario-loader  <-- COPIED SOURCE
+    └── (updated by install.js)
 ```
 
 ## How to Develop
 1.  Open `mods/mod-scenario-loader` in your editor.
 2.  Make changes to files in `src/`.
-3.  The Minsky build system (Angular/Electron) sees the changes automatically via the symlink.
+3.  Run `node install.js` to propagate changes to `gui-js/libs/mods/`.
 4.  Run `npm start` in `gui-js` to test.
 
 ## How to Release

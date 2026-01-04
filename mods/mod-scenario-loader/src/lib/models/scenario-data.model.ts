@@ -1,6 +1,8 @@
 export interface ScenarioData {
     parameters: string[];
     scenarios: ScenarioColumn[];
+    units?: string[];
+    descriptions?: string[];
 }
 
 export interface ScenarioColumn {
@@ -15,6 +17,8 @@ export interface ParameterMapping {
     currentValue: string;
     newValue: number;
     matched: boolean;
+    units?: string;
+    description?: string;
 }
 
 export interface ValidationResult {

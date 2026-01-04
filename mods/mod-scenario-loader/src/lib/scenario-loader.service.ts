@@ -3,6 +3,7 @@ import { ElectronService } from '@minsky/core';
 import { ScenarioData, ParameterMapping, ValidationResult } from './models/scenario-data.model';
 import { CsvParser } from './utils/csv-parser.util';
 import { VariableMatcher } from './utils/variable-matcher.util';
+import { VariableBase } from '@minsky/shared';
 
 @Injectable({ providedIn: 'root' })
 export class ScenarioLoaderService {
@@ -34,6 +35,8 @@ export class ScenarioLoaderService {
         const mappings = await VariableMatcher.matchVariables(
             scenarioData.parameters,
             scenario.values,
+            scenarioData.units || [],
+            scenarioData.descriptions || [],
             this.electronService
         );
 
@@ -50,9 +53,23 @@ export class ScenarioLoaderService {
         }
     }
 
-    async createMissingVariables(names: string[]): Promise<void> {
-        for (const name of names) {
-            await this.electronService.minsky.canvas.addVariable(`:${name}`, 'parameter');
+    async createMissingVariables(mappings: ParameterMapping[]): Promise<void> {
+        let y = 100;
+        const x = 100;
+
+        for (const m of mappings) {
+            await this.electronService.minsky.canvas.addVariable(`:${m.csvName}`, 'parameter');
+
+            // Note: addVariable creates item and focuses it.
+            // We need to create a wrapper for the focused item.
+            const v = new VariableBase(this.electronService.minsky.canvas.itemFocus);
+            await v.moveTo(x, y);
+
+            // Set units and description (tooltip) if available
+            if (m.units) await v.setUnits(m.units);
+            if (m.description) await v.tooltip(m.description);
+
+            y += 50; // Vertical spacing
         }
     }
 }

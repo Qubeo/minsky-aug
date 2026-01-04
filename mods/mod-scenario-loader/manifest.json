@@ -6,7 +6,7 @@
         "tsconfig.base.json": "68160bd841f113320a3f8ecefdbeca7b359dd7e3ec328e297df034d02f07b4c1",
         "libs/menu/src/lib/simulation/simulation.module.ts": "b20725da45334b69cd24e8b18800e944b8ea67464ecd38b9a0a76efc1aa6f96d",
         "libs/menu/src/lib/simulation/simulation-routing.module.ts": "3a1386b5c90d4b5108879d4de45d53ec38467026b5e59feb4efdbbd7e5ded15f",
-        "apps/minsky-electron/src/app/managers/ApplicationMenuManager.ts": "3bc632f42d2d3f5f3e8bb7a7a801543c0ab74ed256257d7a56fbca5fe3a9ad2c",
+        "apps/minsky-electron/src/app/managers/ApplicationMenuManager.ts": "ca5ddb6a1aee124c254964850b00f2e5c67b47ebb587583c64f44e8445ede9e5",
         "libs/core/src/lib/services/electron/electron.service.ts": "5ff6fb3351447a13728c6539d4434318e02566ec90d2c4499f7491be9d8efaa9",
         "apps/minsky-electron/src/app/events/electron.events.ts": "9563e514a40a404fd3c2fe0eeec5aa5a985e5302b2e49debf03ef81aa0f2dfa7"
     }

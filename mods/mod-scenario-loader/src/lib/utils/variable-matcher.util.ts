@@ -5,6 +5,8 @@ export class VariableMatcher {
     static async matchVariables(
         csvParameters: string[],
         scenarioValues: (number | null)[],
+        units: string[],
+        descriptions: string[],
         electronService: ElectronService
     ): Promise<ParameterMapping[]> {
         const variableSummary = await electronService.minsky.variableValues.summarise();
@@ -30,7 +32,9 @@ export class VariableMatcher {
                 valueId: matchedVar?.valueId || '',
                 currentValue: matchedVar?.init || '0',
                 newValue,
-                matched: !!matchedVar
+                matched: !!matchedVar,
+                units: units[i] || '',
+                description: descriptions[i] || ''
             });
         }
 

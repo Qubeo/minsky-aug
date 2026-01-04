@@ -33,7 +33,7 @@ mods/
 ### 1. Understanding the Workflow
 We use a **Source-Patch** architecture.
 -   **Develop** in `mods/<mod-name>/`.
--   **Run** in Minsky via symlinks (Auto-linked).
+-   **Install** to Minsky via `install.js` (Copies files).
 -   **Distribute** as a zip file with an `install.js` script.
 
 > Read [DEV_WORKFLOW.md](docs/DEV_WORKFLOW.md) for the complete guide.
@@ -41,11 +41,10 @@ We use a **Source-Patch** architecture.
 ### 2. Creating a New Mod
 1.  Create a directory `mods/mod-my-feature`.
 2.  Add your source code in `src/`.
-3.  Link it to Minsky core:
-    ```bash
-    ln -s ../../../mods/mod-my-feature gui-js/libs/mods/mod-my-feature
-    ```
-4.  Write `install.js` to handle distribution (copying files & patching core).
+3.  Write `install.js` to handle distribution:
+    -   Copy `src/` to `gui-js/libs/mods/mod-my-feature`.
+    -   Apply patches to core files.
+
 
 ### 3. Installing Mods (Consumer)
 If you received a mod package:
@@ -82,7 +81,7 @@ If you received a mod package:
 ### Workflow Summary
 1.  **Branch**: `git checkout -b mod/my-feature`
 2.  **Code**: Work in `mods/mod-my-feature/`
-3.  **Test**: Verified via automatic symlink in `gui-js/`
+3.  **Test**: Verified via `node install.js` and `npm start`
 4.  **Document**: Update `README.md` and `BASE_CHANGES.md` inside your mod folder.
 
 ---
