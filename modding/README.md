@@ -91,7 +91,7 @@ If you received a mod package:
 
 ## 🔗 Links
 - **Original Repo**: https://github.com/highperformancecoder/minsky
-- **Your Fork**: https://github.com/Qubeo/minsky-mod
+- **Your Fork**: https://github.com/Qubeo/minsky-aug
 - **Minsky Website**: http://minsky.sf.net
 
 ---

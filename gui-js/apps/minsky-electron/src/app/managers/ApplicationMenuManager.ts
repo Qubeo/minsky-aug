@@ -44,14 +44,14 @@ export class ApplicationMenuManager {
           targetMenu.submenu.append(new MenuItem({
             label: item.label,
             click: () => {
-              if (item.window) {
-                WindowManager.createPopupWindowWithRouting({
-                  width: item.window.width,
-                  height: item.window.height,
-                  title: item.window.title || item.label,
-                  url: `#/headless/menu/${item.route}`,
-                });
-              }
+              console.log(`[Modding] Menu clicked: ${item.label} (route: ${item.route})`);
+              const win = item.window || { width: 600, height: 500, title: item.label };
+              WindowManager.createPopupWindowWithRouting({
+                width: win.width,
+                height: win.height,
+                title: win.title || item.label,
+                url: `#/headless/menu/${item.route}`,
+              });
             }
           }));
         }
@@ -213,7 +213,7 @@ export class ApplicationMenuManager {
           label: 'Library',
           click() {
             shell.openExternal(
-              'https://github.com/highperformancecoder/minsky-models'
+              'https://github.com/highperformancecoder/minsky-augels'
             );
           },
         },

@@ -19,6 +19,7 @@
         "esModuleInterop": true,
         "useDefineForClassFields": false,
         "baseUrl": ".",
+        "preserveSymlinks": true,
         "paths": {
             "@minsky/menu": [
                 "libs/menu/src/index.ts"

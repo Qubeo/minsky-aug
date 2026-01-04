@@ -17,10 +17,10 @@ To enable immediate sharing of the **Scenario Loader** (and similar mods) with t
 
 Instead of a runtime plugin, the mod is distributed as source code with an intelligent `install.js` script that automates the integration steps we performed manually.
 
-### Package Structure (`minsky-mod-scenario-loader.zip`)
+### Package Structure (`minsky-aug-scenario-loader.zip`)
 
 ```text
-minsky-mod-scenario-loader/
+minsky-aug-scenario-loader/
 ├── lib/               # The Angular library (gui-js/libs/mods/mod-scenario-loader content)
 ├── install.js         # NodeJS installation script
 ├── uninstall.js       # Reversion script

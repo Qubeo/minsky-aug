@@ -46,8 +46,8 @@ node -v  # Should be >= 20.11.1
 
 1. **Clone and initialize repository:**
 ```bash
-git clone https://github.com/Qubeo/minsky-mod.git
-cd minsky-mod
+git clone https://github.com/Qubeo/minsky-aug.git
+cd minsky-aug
 git submodule update --init --recursive
 ```
 
@@ -117,7 +117,7 @@ gui-js/dist/executables/linux-unpacked/minsky
 ## Build Output Structure
 
 ```
-minsky-mod/
+minsky-aug/
 ├── ecolab/                      # EcoLab library (built first)
 ├── RavelCAPI/                   # Ravel C API (built second)
 ├── model/, engine/, schema/     # C++ source files
