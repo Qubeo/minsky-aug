@@ -1,0 +1,9 @@
+{
+    "id": "mod-template",
+    "version": "0.0.1",
+    "description": "Template for new Minsky mods",
+    "author": "Your Name",
+    "checksums": {
+        "tsconfig.base.json": "CLEAN_HASH_HERE"
+    }
+}
