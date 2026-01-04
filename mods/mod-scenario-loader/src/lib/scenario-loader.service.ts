@@ -45,20 +45,31 @@ export class ScenarioLoaderService {
 
     async applyScenario(mappings: ParameterMapping[]): Promise<void> {
         for (const mapping of mappings) {
-            if (mapping.matched && mapping.valueId) {
-                await this.electronService.minsky.variableValues
-                    .elem(mapping.valueId)
-                    .init(mapping.newValue.toString());
+            if (mapping.matched) {
+                // Update value
+                const v = this.electronService.minsky.variableValues.elem(mapping.modelName);
+                await v.init(String(mapping.newValue));
+
+                // Update metadata if provided
+                if (mapping.units) await v.setUnits(mapping.units);
+                if (mapping.description) await v.tooltip(mapping.description);
             }
         }
     }
 
     async createMissingVariables(mappings: ParameterMapping[]): Promise<void> {
+        console.time('Mod:createMissingVariables');
+        console.log(`Creating ${mappings.length} missing variables...`);
+
         let y = 100;
         const x = 100;
 
         for (const m of mappings) {
-            await this.electronService.minsky.canvas.addVariable(`:${m.csvName}`, 'parameter');
+            try {
+                await this.electronService.minsky.canvas.addVariable(`:${m.csvName}`, 'parameter');
+            } catch (e) {
+                console.warn(`Variable ${m.csvName} creation skipped (might exist).`, e);
+            }
 
             // Note: addVariable creates item and focuses it.
             // We need to create a wrapper for the focused item.
@@ -71,5 +82,6 @@ export class ScenarioLoaderService {
 
             y += 50; // Vertical spacing
         }
+        console.timeEnd('Mod:createMissingVariables');
     }
 }

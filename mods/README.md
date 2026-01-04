@@ -48,9 +48,15 @@ We use a **Source-Patch** architecture.
 
 ### 3. Installing Mods (Consumer)
 If you received a mod package:
-1.  Unzip it to `mods/`.
-2.  Run `node mods/mod-name/install.js`.
-3.  Rebuild Minsky.
+13.  **Install the Mod**:
+    ```bash
+    node mods/mod-scenario-loader/install.js
+    ```
+    *Optionally, for better performance with large models:*
+    ```bash
+    node mods/mod-scenario-loader/install-opt.js
+    ```
+4.  **Run Minsky**:
 
 ---
 

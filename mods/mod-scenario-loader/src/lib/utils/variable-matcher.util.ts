@@ -9,7 +9,13 @@ export class VariableMatcher {
         descriptions: string[],
         electronService: ElectronService
     ): Promise<ParameterMapping[]> {
+        console.time('Minsky:variableValues.summarise');
+        console.log('Requesting variable summary from backend...');
         const variableSummary = await electronService.minsky.variableValues.summarise();
+        console.timeEnd('Minsky:variableValues.summarise');
+        console.log(`Received variable summary with ${Object.keys(variableSummary).length} items.`);
+
+        console.time('Mod:VariableMatcher.processing');
         // variableSummary is a Record<string, object>, convert to array
         const variables = Object.values(variableSummary) as { name: string; valueId: string; init: string }[];
         const mappings: ParameterMapping[] = [];
@@ -38,6 +44,7 @@ export class VariableMatcher {
             });
         }
 
+        console.timeEnd('Mod:VariableMatcher.processing');
         return mappings;
     }
 
