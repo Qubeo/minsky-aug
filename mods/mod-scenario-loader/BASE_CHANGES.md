@@ -1,24 +1,20 @@
 # Base Code Changes for mod-scenario-loader
 
-## Files Modified
+## Files Replaced (Base Code)
+These core Minsky files are replaced with pre-patched versions during installation. This strategy ensures zero-regex patching and avoids logic conflicts.
 
-### tsconfig.base.json
-Added path mapping for `@minsky/mod-scenario-loader`
+- **`tsconfig.base.json`**: Added path mapping for `@minsky/mod-scenario-loader`.
+- **`libs/menu/src/lib/simulation/simulation-routing.module.ts`**: Added `load-scenario` route.
+- **`libs/menu/src/lib/simulation/simulation.module.ts`**: Integrated `ScenarioLoaderComponent`.
+- **`apps/minsky-electron/src/app/managers/ApplicationMenuManager.ts`**: Registered "Load Scenario..." simulation menu item.
+- **`libs/core/src/lib/services/electron/electron.service.ts`**: Added `readFileText` IPC handler for large CSV support.
+- **`apps/minsky-electron/src/app/events/electron.events.ts`**: Registered backend IPC events for file system access.
 
-### libs/menu/src/lib/simulation/simulation-routing.module.ts
-Added route: `{ path: 'load-scenario', component: ScenarioLoaderComponent }`
+## Reverting Changes
+The mod installation is reversible using automated scripts:
 
-### libs/menu/src/lib/simulation/simulation.module.ts
-Added import: `ScenarioLoaderComponent`
-
-### apps/minsky-electron/src/app/managers/ApplicationMenuManager.ts
-Added menu item "Load Scenario..." in `getSimulationMenu()`
-
-## Reverting
-1. Remove path from tsconfig.base.json
-2. Remove route from simulation-routing.module.ts
-3. Remove import from simulation.module.ts
-4. Remove menu item from ApplicationMenuManager.ts
+1. **Restore Core**: Run `mods/restore_core.sh` to revert all core files to their original state from Git.
+2. **Uninstall Mod**: Run `node mods/mod-scenario-loader/uninstall.js` to remove the mod source from `gui-js`.
 
 ## Performance Investigation
 To diagnose slow variable loading (equations/summary), we have instrumented the mod with `console.time()` logging:
