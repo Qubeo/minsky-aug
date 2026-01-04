@@ -525,6 +525,11 @@ namespace minsky
   Summary VariableValue::summary() const
   {
     MathDAG::SystemOfEquations system(cminsky());
+    return summary(system);
+  }
+
+  Summary VariableValue::summary(const MathDAG::SystemOfEquations& system) const
+  {
     MathDAG::VariableDAGPtr varNode;
     switch (type())
       {
@@ -566,7 +571,7 @@ namespace minsky
               }
       }
 
-    
+
     return Summary{
       valueId(),
       name,
@@ -581,7 +586,16 @@ namespace minsky
       hypercube().dims(),
       units.latexStr()
     };
-    
+
+  }
+
+  std::vector<Summary> VariableValues::summarise() const
+  {
+    MathDAG::SystemOfEquations system(cminsky());
+    std::vector<Summary> summary;
+    for (auto& v: *this)
+      summary.emplace_back(v.second->summary(system));
+    return summary;
   }
 
 }

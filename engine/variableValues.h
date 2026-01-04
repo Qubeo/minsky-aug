@@ -67,12 +67,8 @@ namespace minsky
       return initValue(v, visited);
     }
 
-    std::vector<Summary> summarise() const {
-      std::vector<Summary> summary;
-      for (auto& v: *this)
-        summary.emplace_back(v.second->summary());
-      return summary;
-    }
+    /// summarise all variables - builds equation system once for efficiency
+    std::vector<Summary> summarise() const;
     
     /// checks that all entry names are valid
     bool validEntries() const;

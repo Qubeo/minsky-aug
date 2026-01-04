@@ -33,6 +33,8 @@
 #include <boost/locale.hpp>
 using namespace boost::locale::conv;
 
+namespace MathDAG { class SystemOfEquations; }
+
 namespace minsky
 {
   class VariableValue;
@@ -179,6 +181,8 @@ namespace minsky
     void exportAsCSV(const std::string& filename, const std::string& comment="", bool tabular=false) const;
 
     Summary summary() const;
+    /// overload that accepts pre-built equation system for batch efficiency
+    Summary summary(const MathDAG::SystemOfEquations& system) const;
 
     const std::string& init() const {return m_init;}
     const std::string& init(const std::string& x);
