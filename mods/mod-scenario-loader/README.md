@@ -41,7 +41,7 @@ The implementation follows the clean "Mod Side-Load" architecture:
 - **Planning Doc**: [SCENARIO_LOADER_PLAN.md](./SCENARIO_LOADER_PLAN.md)
 - **Base Changes**: [BASE_CHANGES.md](./BASE_CHANGES.md) (Core patches documentation)
 - **Test CSV**: [test-scenario.csv](./test-scenario.csv)
-- **Modding Guide**: [MODDING_GUIDE.md](../docs/MODDING_GUIDE.md)
+- **Development Guide**: [DEV_WORKFLOW.md](../docs/DEV_WORKFLOW.md)
 
 ## CSV Format
 

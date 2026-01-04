@@ -14,7 +14,6 @@ mods/
 ├── docs/                   ← Documentation
 │   ├── DEV_WORKFLOW.md     ← **Start Here** (Development Guide)
 │   ├── CONTENT_GUIDE.md    ← Writing style & formatting
-│   ├── MODDING_GUIDE.md    ← General modding concepts
 │   └── MINIMALIST_MOD_INSTALLER.md ← Installer architecture
 │
 ├── mod-scenario-loader/    ← **Active Mod Source**
@@ -66,9 +65,7 @@ If you received a mod package:
 |----------|---------|
 | [DEV_WORKFLOW.md](docs/DEV_WORKFLOW.md) | **Primary Guide**: How to set up, develop, and release mods. |
 | [MINIMALIST_MOD_INSTALLER.md](docs/MINIMALIST_MOD_INSTALLER.md) | Explanation of the `install.js` system. |
-| [MODDING_GUIDE.md](docs/MODDING_GUIDE.md) | General guide to creating mods. |
 | [BUILD_SETUP.md](docs/BUILD_SETUP.md) | Compiling Minsky on Linux. |
-| [GIT_WORKFLOW_QUICKREF.md](docs/GIT_WORKFLOW_QUICKREF.md) | Branching and merging specific to this repo. |
 
 ---
 
