@@ -7,7 +7,7 @@ export const updateServerUrl = 'https://deployment-server-url.com'; // TODO: ins
 
 export const defaultBackgroundColor = '#ffffff';
 
-export const numLinkGroupColours=8;
+export const numLinkGroupColours = 8;
 
 export const ZOOM_IN_FACTOR = 1.1;
 export const ZOOM_OUT_FACTOR = 0.91;
@@ -65,7 +65,8 @@ export const events = {
   UPDATE_BOOKMARK_LIST: 'update-bookmark-list',
   UPDATE_PREFERENCES: 'update-preferences',
   ZOOM: 'zoom',
-  LOG_MESSAGE: 'log-message'
+  LOG_MESSAGE: 'log-message',
+  READ_FILE_TEXT: 'read-file-text'
 };
 
 // add non exposed commands here to get intellisense on the terminal popup
