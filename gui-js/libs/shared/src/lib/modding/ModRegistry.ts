@@ -1,15 +1,27 @@
-import { activeMods, modMenuContributions, modRoutes } from './mod-config.frontend.generated';
+import { activeMods, topLevelMenus, menuItems, commands, modRoutes } from './mod-config.frontend.generated';
 
-export interface ModMenuContribution {
-    modId: string;
-    targetMenu: string;
+export interface TopLevelMenu {
+    id: string;
     label: string;
+    after?: string;
+    modId: string;
+}
+
+export interface MenuItem {
+    menu: string;
+    label: string;
+    command: string;
+    modId: string;
+}
+
+export interface Command {
+    id: string;
     route?: string;
     window?: { width: number; height: number; title?: string };
+    modId: string;
 }
 
 export class ModRegistry {
-
     static getActiveMods(): string[] {
         return activeMods;
     }
@@ -18,8 +30,19 @@ export class ModRegistry {
         return modRoutes;
     }
 
-    static getMenuContributions(): ModMenuContribution[] {
-        // Cast to our interface since the generated file is roughly typed
-        return modMenuContributions as unknown as ModMenuContribution[];
+    static getTopLevelMenus(): TopLevelMenu[] {
+        return topLevelMenus as TopLevelMenu[];
+    }
+
+    static getMenuItems(): MenuItem[] {
+        return menuItems as MenuItem[];
+    }
+
+    static getCommands(): Command[] {
+        return commands as Command[];
+    }
+
+    static getCommand(id: string): Command | undefined {
+        return (commands as Command[]).find(c => c.id === id);
     }
 }

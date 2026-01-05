@@ -34,27 +34,43 @@ export class ApplicationMenuManager {
       scope.getHelpMenu(),
     ]);
 
-    // [Modding] Inject mod menus
-    const modMenus = ModRegistry.getMenuContributions();
-    for (const item of modMenus) {
-      // Only supporting simulation menu injection for now as per plan
-      if (item.targetMenu === 'simulation') {
-        const targetMenu = menu.items.find(i => i.label === 'Simulation');
-        if (targetMenu && targetMenu.submenu) {
-          targetMenu.submenu.append(new MenuItem({
-            label: item.label,
-            click: () => {
-              console.log(`[Modding] Menu clicked: ${item.label} (route: ${item.route})`);
-              const win = item.window || { width: 600, height: 500, title: item.label };
+    // [Modding] Create top-level menus from mods
+    const menuLabels = ['File', 'Edit', 'Bookmarks', 'Insert', 'Options', 'Simulation', 'Help'];
+    for (const menuDef of ModRegistry.getTopLevelMenus()) {
+      const afterIndex = menuDef.after 
+        ? menuLabels.findIndex(l => l.toLowerCase() === menuDef.after.toLowerCase())
+        : menuLabels.length - 1;
+      const insertAt = afterIndex >= 0 ? afterIndex + 1 : menuLabels.length;
+      
+      menu.insert(insertAt, new MenuItem({
+        id: menuDef.id,
+        label: menuDef.label,
+        submenu: []
+      }));
+      menuLabels.splice(insertAt, 0, menuDef.label);
+    }
+
+    // [Modding] Add menu items to menus (existing or newly created)
+    for (const item of ModRegistry.getMenuItems()) {
+      const targetMenu = menu.items.find(m => 
+        m.id === item.menu || m.label?.toLowerCase() === item.menu.toLowerCase()
+      );
+      if (targetMenu && targetMenu.submenu) {
+        const command = ModRegistry.getCommand(item.command);
+        targetMenu.submenu.append(new MenuItem({
+          label: item.label,
+          click: () => {
+            if (command?.route) {
+              const win = command.window || { width: 600, height: 500, title: item.label };
               WindowManager.createPopupWindowWithRouting({
                 width: win.width,
                 height: win.height,
                 title: win.title || item.label,
-                url: `#/headless/menu/${item.route}`,
+                url: `#/headless/menu/simulation/${command.route}`,
               });
             }
-          }));
-        }
+          }
+        }));
       }
     }
 
