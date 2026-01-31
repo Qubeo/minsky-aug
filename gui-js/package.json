@@ -104,6 +104,7 @@
   "scripts": {
     "postinstall": "node ./decorate-angular-cli.js && exitzero electron-builder install-app-deps",
     "nx": "nx",
+    "prestart": "bash ../setup-bun.sh",
     "start": "npm-run-all -p web electron",
     "start:log": "DEBUG=minsky:* DEBUG_COLOR=true npm run start",
     "web": "nx serve minsky-web",
