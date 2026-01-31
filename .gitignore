@@ -40,6 +40,8 @@ gui-js/documentation/*
 gui-js/dist/*
 gui-js/.nx/*
 gui-js/.angular/*
+gui-js/build/*
+*.node
 doc/minsky/*
 # CodeQL temporary files
 _codeql_detected_source_root
